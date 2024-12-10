@@ -14,8 +14,11 @@ const registerSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    // Read the request body once
     const body = await request.json();
-    const { name, email, password, role } = registerSchema.parse(body); // Validate the body
+
+    // Parse and validate the body using zod
+    const { name, email, password, role } = registerSchema.parse(body);
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,12 +28,11 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
-        password: hashedPassword, // Save the hashed password
-        role, // Pass role as a string ("USER" or "ADMIN")
+        password: hashedPassword,
+        role,
         emailVerified: false,
       },
     });
-
     return NextResponse.json(newUser, { status: 201 });
   } catch (error: unknown) {
     console.error("Error creating user:", error);
@@ -42,7 +44,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors.map((err) => err.message).join(", ") },
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { error: "An error occurred while creating the user" },
+      { error: `Internal Server Error: ${JSON.stringify(error)}` },
       { status: 500 }
     );
   }

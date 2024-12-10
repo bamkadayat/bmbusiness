@@ -13,7 +13,8 @@ export default function Register() {
     setSuccessMessage(null);
 
     try {
-      const response = await fetch("/api/users/register", {
+      const url = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${url}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
