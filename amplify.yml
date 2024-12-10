@@ -1,0 +1,26 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        - echo "Running Prisma Migrations..."
+        - npm run prisma:migrate
+        - echo "Prisma Migrations Completed."
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*
+      - .npm/**/*
+  environment:
+    DATABASE_URL: $DATABASE_URL
+    JWT_SECRET: $JWT_SECRET
+    GMAIL_USER: $GMAIL_USER
+    GMAIL_PASS: $GMAIL_PASS
+    NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL
