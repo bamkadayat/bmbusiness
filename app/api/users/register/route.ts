@@ -1,36 +1,30 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import nodemailer from "nodemailer";
+import { registerSchema, RegisterInput } from "@/types/users/userType";
 import { z } from "zod";
-
-const registerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-  role: z.enum(["USER", "ADMIN"], { errorMap: () => ({ message: "Role must be 'USER' or 'ADMIN'" }) }),
-});
 
 export async function POST(request: Request) {
   try {
-    // Read the request body once
     const body = await request.json();
 
-    // Parse and validate the body using zod
-    const { name, email, password, role } = registerSchema.parse(body);
+    const { name, email, password }: RegisterInput = registerSchema.parse(body);
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-    // Create the user
     const newUser = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role,
+        role: "USER",
         emailVerified: false,
+        verificationCode,
       },
     });
+    await sendEmail(email, verificationCode);
     return NextResponse.json(newUser, { status: 201 });
   } catch (error: unknown) {
     console.error("Error creating user:", error);
@@ -44,7 +38,9 @@ export async function POST(request: Request) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors.map((err) => err.message).join(", ") },
+        {
+          error: error.errors.map((err: z.ZodIssue) => err.message).join(", "),
+        },
         { status: 400 }
       );
     }
@@ -54,4 +50,24 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+async function sendEmail(to: string, verificationCode: string) {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to,
+    subject: "Email Verification - Your App",
+    text: `Your verification code is: ${verificationCode}. Please use this code to verify your email address.`,
+    html: `<p>Your verification code is: <strong>${verificationCode}</strong>. Please use this code to verify your email address.</p>`,
+  };
+
+  await transporter.sendMail(mailOptions);
 }
