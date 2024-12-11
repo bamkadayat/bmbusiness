@@ -3,18 +3,26 @@ frontend:
   phases:
     preBuild:
       commands:
-        - yarn install
+        - yarn install # Change to npm ci if you're using npm
     build:
       commands:
-        # This env command will take the clientID, redirectURL, and client
-        # secret and then add it to the runtime variables. More info on AWS docs
-        # https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
-        - env | grep -e clientID -e redirectURL -e clientSecret >> .env.production
-        - yarn run build
+        # Ensure runtime variables like DATABASE_URL are available at runtime
+        - env | grep -e DATABASE_URL -e JWT_SECRET -e GMAIL_USER -e GMAIL_PASS -e NEXT_PUBLIC_API_URL >> .env.production
+        - echo "Running Prisma Migrations..."
+        - yarn run prisma:migrate # Change to npm run prisma:migrate if you're using npm
+        - echo "Prisma Migrations Completed."
+        - yarn run build # Change to npm run build if you're using npm
   artifacts:
     baseDirectory: .next
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*
+  env:
+    variables:
+      DATABASE_URL: "$DATABASE_URL"
+      JWT_SECRET: "$JWT_SECRET"
+      GMAIL_USER: "$GMAIL_USER"
+      GMAIL_PASS: "$GMAIL_PASS"
+      NEXT_PUBLIC_API_URL: "$NEXT_PUBLIC_API_URL"
