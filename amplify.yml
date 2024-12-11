@@ -3,9 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --cache .npm --prefer-offline
+        - npm ci
     build:
       commands:
+        - echo "DATABASE_URL: $DATABASE_URL"
         - echo "Running Prisma Migrations..."
         - npm run prisma:migrate
         - echo "Prisma Migrations Completed."
@@ -16,11 +17,11 @@ frontend:
       - '**/*'
   cache:
     paths:
-      - .next/cache/**/*
-      - .npm/**/*
-  environment:
-    DATABASE_URL: $DATABASE_URL
-    JWT_SECRET: $JWT_SECRET
-    GMAIL_USER: $GMAIL_USER
-    GMAIL_PASS: $GMAIL_PASS
-    NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL
+      - node_modules/**/*
+  env:
+    variables:
+      DATABASE_URL: $DATABASE_URL
+      JWT_SECRET: $JWT_SECRET
+      GMAIL_USER: $GMAIL_USER
+      GMAIL_PASS: $GMAIL_PASS
+      NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL
