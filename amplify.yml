@@ -8,9 +8,9 @@ frontend:
       commands:
         - echo "DATABASE_URL: $DATABASE_URL"
         - echo "Running Prisma Migrations..."
-        - npm run prisma:migrate
+        - "npm run prisma:migrate"
         - echo "Prisma Migrations Completed."
-        - npm run build
+        - "npm run build"
   artifacts:
     baseDirectory: .next
     files:
