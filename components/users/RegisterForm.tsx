@@ -2,10 +2,10 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RegisterFormData, registerSchema } from "@/lib/types/users/registerSchema";
+import { registerSchema, RegisterInput } from "@/types/users/userType";
 
 interface RegisterFormProps {
-  onSubmit: (data: { name: string; email: string; password: string; role: string }) => void;
+  onSubmit: (data: { name: string; email: string; password: string; repeatPassword: string }) => void;
   loading: boolean;
 }
 
@@ -14,27 +14,26 @@ export default function RegisterForm({ onSubmit, loading }: RegisterFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormData>({
+  } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
   });
 
-  const handleFormSubmit = (data: RegisterFormData) => {
-    const { name, email, password, role } = data;
-    onSubmit({ name, email, password, role });
+  const handleFormSubmit = (data: RegisterInput) => {
+    onSubmit(data);
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 bg-white p-6 shadow rounded-lg">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 p-6 rounded-lg">
       {/* Name Input */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="name" className="block text-sm font-medium text-white">
           Name
         </label>
         <input
           id="name"
           type="text"
           {...register("name")}
-          className={`mt-1 block w-full text-gray-950 rounded-md border p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+          className={`mt-1 block w-full text-white bg-gray-800 rounded-md p-2 focus:ring-gray-500 focus:border-blue-500 sm:text-sm ${
             errors.name ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your name"
@@ -44,14 +43,14 @@ export default function RegisterForm({ onSubmit, loading }: RegisterFormProps) {
 
       {/* Email Input */}
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="email" className="block text-sm font-medium text-white">
           Email
         </label>
         <input
           id="email"
           type="email"
           {...register("email")}
-          className={`mt-1 block w-full text-gray-950 rounded-md border p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+          className={`mt-1 block w-full text-white bg-gray-800 rounded-md p-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm ${
             errors.email ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your email"
@@ -61,14 +60,14 @@ export default function RegisterForm({ onSubmit, loading }: RegisterFormProps) {
 
       {/* Password Input */}
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="password" className="block text-sm font-medium text-white">
           Password
         </label>
         <input
           id="password"
           type="password"
           {...register("password")}
-          className={`mt-1 block text-gray-950 w-full rounded-md border p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+          className={`mt-1 block w-full text-white bg-gray-800 rounded-md p-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm ${
             errors.password ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Enter your password"
@@ -78,37 +77,19 @@ export default function RegisterForm({ onSubmit, loading }: RegisterFormProps) {
 
       {/* Repeat Password Input */}
       <div>
-        <label htmlFor="repeatPassword" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="repeatPassword" className="block text-sm font-medium text-white">
           Repeat Password
         </label>
         <input
           id="repeatPassword"
           type="password"
           {...register("repeatPassword")}
-          className={`mt-1 block text-gray-950 w-full rounded-md border p-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm ${
+          className={`mt-1 block text-white w-full bg-gray-800 rounded-md border p-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm ${
             errors.repeatPassword ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="Repeat your password"
         />
         {errors.repeatPassword && <p className="text-sm text-red-600 mt-1">{errors.repeatPassword.message}</p>}
-      </div>
-
-      {/* Role Input */}
-      <div>
-        <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-          Role
-        </label>
-        <select
-          id="role"
-          {...register("role")}
-          className={`mt-1 block text-gray-950 w-full rounded-md border p-2 focus:ring-blue-500 focus:border-gray-500 sm:text-sm ${
-            errors.role ? "border-red-500" : "border-gray-300"
-          }`}
-        >
-          <option value="USER">User</option>
-          <option value="ADMIN">Admin</option>
-        </select>
-        {errors.role && <p className="text-sm text-red-600 mt-1">{errors.role.message}</p>}
       </div>
 
       {/* Submit Button */}
