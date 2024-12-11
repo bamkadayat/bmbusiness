@@ -8,6 +8,9 @@ frontend:
       commands:
         # Ensure runtime variables like DATABASE_URL are available at runtime
         - env | grep -e DATABASE_URL -e JWT_SECRET -e GMAIL_USER -e GMAIL_PASS -e NEXT_PUBLIC_API_URL >> .env.production
+        - echo "Generating Prisma Client..."
+        - npx prisma generate
+        - echo "Prisma Client Generated."
         - echo "Running Prisma Migrations..."
         - yarn run prisma:migrate # Change to npm run prisma:migrate if you're using npm
         - echo "Prisma Migrations Completed."
