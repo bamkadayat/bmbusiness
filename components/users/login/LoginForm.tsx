@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import { useForm } from "react-hook-form";
 
 interface LoginFormInputs {
@@ -6,13 +7,18 @@ interface LoginFormInputs {
   password: string;
 }
 
-export default function Login() {
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>();
+interface LoginFormProps {
+  onSubmit: (data: LoginFormInputs) => void;
+  loading: boolean;
+  error: string | null;
+}
 
-  const onSubmit = (data: LoginFormInputs) => {
-    console.log(data);
-    // Add your login logic here
-  };
+export default function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormInputs>();
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
@@ -31,6 +37,7 @@ export default function Login() {
                 errors.email ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Enter your email"
+              disabled={loading}
             />
             {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
           </div>
@@ -46,15 +53,20 @@ export default function Login() {
                 errors.password ? "border-red-500" : "border-gray-300"
               }`}
               placeholder="Enter your password"
+              disabled={loading}
             />
             {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>}
           </div>
+          {error && <p className="text-sm text-red-600 text-center">{error}</p>}
           <div>
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-gray-600 text-white rounded-md shadow-sm hover:bg-gray-700 transition duration-300"
+              className={`w-full py-2 px-4 ${
+                loading ? "bg-gray-400" : "bg-gray-600 hover:bg-gray-700"
+              } text-white rounded-md shadow-sm transition duration-300`}
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>
