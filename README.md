@@ -56,3 +56,8 @@ npx prisma migrate dev --name init
 ```bash
 npx prisma migrate dev --name add-email-verified
 ```
+## Reinstall dependencies
+```bash
+rm -rf node_modules yarn.lock
+yarn install
+```

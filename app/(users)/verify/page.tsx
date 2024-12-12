@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function VerifyPage() {
   const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const router = useRouter();
 
   const handleVerify = async () => {
@@ -19,15 +21,16 @@ export default function VerifyPage() {
       });
 
       if (response.ok) {
-        router.push("/login");
+        setSuccess(true);
+        setTimeout(() => {
+          router.push("/login");
+        }, 3000); // Redirect after 3 seconds
       } else {
-        // Check if response is JSON
         const contentType = response.headers.get("Content-Type") || "";
         if (contentType.includes("application/json")) {
           const data = await response.json();
           setError(data.error || "Verification failed. Please try again.");
         } else {
-          // Handle non-JSON responses
           setError("An unexpected error occurred. Please try again.");
         }
       }
@@ -57,6 +60,11 @@ export default function VerifyPage() {
         Verify
       </button>
       {error && <p className="mt-4 text-red-600">{error}</p>}
+      {success && (
+        <p className="mt-4 text-green-600">
+          Congratulations! Your account has been successfully verified. Please login <Link href="/login" className="text-gray-600 underline">Login </Link>
+        </p>
+      )}
     </div>
   );
 }
