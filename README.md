@@ -35,6 +35,12 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Postgresql
+https://lightsail.aws.amazon.com/ls/webapp/eu-central-1/databases/bam-database/connect
+
+## AWS amplify
+https://us-east-2.console.aws.amazon.com/amplify/apps/d21z1pqwz47z45/variables/EDIT
+
 
 ## Prisma setup 
 ```bash
