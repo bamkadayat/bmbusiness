@@ -1,22 +1,41 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { jwtVerify } from "jose";
 
-export function middleware(req: NextRequest) {
-  const token = req.cookies.get("authToken")?.value;
+const protectedRoutes = ["/overview","/api", "/dashboard"];
+const publicRoutes = ["/login", "/register"];
 
-  // Define paths that logged-in users should not access
-  const restrictedPaths = ["/login", "/register"];
+export default async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+  const isProtectedRoute = protectedRoutes.includes(path);
+  const isPublicRoute = publicRoutes.includes(path);
 
-  // If a user is logged in and trying to access a restricted path, redirect to /overview
-  if (token && restrictedPaths.some((path) => req.nextUrl.pathname.startsWith(path))) {
+  const cookie = req.cookies.get("authToken")?.value;
+
+  let user = null;
+
+  if (cookie) {
+    try {
+      const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+      const { payload } = await jwtVerify(cookie, secret);
+      user = payload; // Decoded token payload
+    } catch (error) {
+      console.error("Invalid or expired token:", error);
+    }
+  }
+
+  // Redirect unauthenticated users from protected routes
+  if (isProtectedRoute && !user) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  // Redirect authenticated users away from public routes
+  if (isPublicRoute && user) {
     return NextResponse.redirect(new URL("/overview", req.url));
   }
 
-  // Allow request to proceed
   return NextResponse.next();
 }
 
-// Specify which routes should invoke this middleware
 export const config = {
-  matcher: ["/login", "/register", "/overview"], // Only apply middleware to login and register pages
+  matcher: ["/overview","/api", "/dashboard", "/login", "/register"]
 };
