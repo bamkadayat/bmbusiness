@@ -1,22 +1,53 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 
-interface AuthState {
-  user: { email: string } | null;
-  token: string | null;
-  isAuthenticated: boolean;
-}
+// Login thunk
+export const login = createAsyncThunk(
+  "auth/login",
+  async (
+    credentials: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
 
-const initialState: AuthState = {
-  user: null,
-  token: null,
-  isAuthenticated: false,
-};
+      if (!response.ok) {
+        const error = await response.json();
+        return rejectWithValue(error.message || "Invalid login credentials");
+      }
 
+      const result = await response.json();
+      return { user: { email: result.email, role: result.role }, token: result.token };
+    } catch (error) {
+      console.error("Error during login:", error);
+      return rejectWithValue("An unexpected error occurred");
+    }
+  }
+);
+
+// Slice definition
 const authSlice = createSlice({
-  name: 'auth',
-  initialState,
+  name: "auth",
+  initialState: {
+    user: null as { email: string; role: string } | null,
+    token: null as string | null,
+    isAuthenticated: false,
+    loading: false,
+    error: null as string | null,
+  },
   reducers: {
-    loginSuccess(state, action: PayloadAction<{ user: { email: string }; token: string }>) {
+    loginSuccess(
+      state,
+      action: PayloadAction<{
+        user: { email: string; role: string };
+        token: string;
+      }>
+    ) {
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
@@ -26,6 +57,24 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        const { user, token } = action.payload;
+        state.user = user;
+        state.token = token;
+        state.isAuthenticated = true;
+        state.loading = false;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { RiLoader3Fill } from "react-icons/ri";
 
 interface LoginFormInputs {
   email: string;
@@ -13,7 +14,11 @@ interface LoginFormProps {
   error: string | null;
 }
 
-export default function LoginForm({ onSubmit, loading, error }: LoginFormProps) {
+export default function LoginForm({
+  onSubmit,
+  loading,
+  error,
+}: LoginFormProps) {
   const {
     register,
     handleSubmit,
@@ -26,7 +31,10 @@ export default function LoginForm({ onSubmit, loading, error }: LoginFormProps) 
         <h2 className="text-2xl font-bold mb-6 text-black text-left">Login</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email
             </label>
             <input
@@ -39,10 +47,17 @@ export default function LoginForm({ onSubmit, loading, error }: LoginFormProps) 
               placeholder="Enter your email"
               disabled={loading}
             />
-            {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <input
@@ -55,7 +70,11 @@ export default function LoginForm({ onSubmit, loading, error }: LoginFormProps) 
               placeholder="Enter your password"
               disabled={loading}
             />
-            {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="text-sm text-red-600 mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
           {error && <p className="text-sm text-red-600 text-center">{error}</p>}
           <div>
@@ -66,7 +85,13 @@ export default function LoginForm({ onSubmit, loading, error }: LoginFormProps) 
               } text-white rounded-md shadow-sm transition duration-300`}
               disabled={loading}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? (
+                <div className="flex justify-center items-center">
+                  <RiLoader3Fill className="animate-spin mr-3" /> <span>Logging in...</span> 
+                </div>
+              ) : (
+                "Login"
+              )}
             </button>
           </div>
         </form>
